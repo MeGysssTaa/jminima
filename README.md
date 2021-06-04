@@ -9,7 +9,7 @@
 # Before installing
 
 
-**JMinima** requires two other libraries to work: [**Apache Commons IO**](https://commons.apache.org/proper/commons-io/) and[**ASM**](https://asm.ow2.io/). However, **JMinima** is *not* shipped with these libraries inside. You have to add them in your project build script yourself.
+**JMinima** requires two other libraries to work: [**Apache Commons IO**](https://commons.apache.org/proper/commons-io/) and [**ASM**](https://asm.ow2.io/). However, **JMinima** is *not* shipped with these libraries inside. You have to add them in your project build script yourself.
 
 
 That is, if you are writing another library based on **JMinima**, you should install both **JMinima** and the libraries above as *compile-time* dependencies. Otherwise, if you're building a complete runnable application based on **JMinima**, make sure to install all the libraries as *run-time* dependencies.
