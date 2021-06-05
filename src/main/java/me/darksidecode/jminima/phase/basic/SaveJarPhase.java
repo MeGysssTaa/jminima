@@ -50,16 +50,16 @@ public class SaveJarPhase extends Phase<JarFileData, Void> {
     protected EmittedValue<? extends Void> execute(JarFileData target,
                                                    PhaseExecutionException error) throws Exception {
         if (target == null)
-            throw new PhaseExecutionException(true, "failed to save classes", error);
+            return new EmittedValue<>(new PhaseExecutionException(true, "failed to save jar", error));
 
         if (outputFile.exists()) {
             if (overwrite) {
-                if (outputFile.canWrite() && !outputFile.delete())
-                    throw new PhaseExecutionException(
-                            true, "output file already exists, and cannot be overwritten (deleted)");
+                if (!outputFile.delete())
+                    return new EmittedValue<>(new PhaseExecutionException(
+                            true, "output file already exists, and cannot be overwritten (deleted)", error));
             } else
-                throw new PhaseExecutionException(
-                        true, "output file already exists, and overwrite is set to false");
+                return new EmittedValue<>(new PhaseExecutionException(
+                        true, "output file already exists, and overwrite is set to false", error));
         }
 
         saveJar(target);

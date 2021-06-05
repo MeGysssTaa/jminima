@@ -52,15 +52,9 @@ public class WalkClassesPhase extends Phase<JarFileData, Void> {
     @Override
     protected EmittedValue<? extends Void> execute(JarFileData target,
                                                    PhaseExecutionException error) throws Exception {
-        if (target == null)
+        if (target == null || target.getJarFile() == null || target.getClasses() == null)
             return new EmittedValue<>(new PhaseExecutionException(
                     true, "failed to walk classes of the target disassembled data", error));
-
-        if (target.getJarFile() == null)
-            throw new PhaseExecutionException(true, "target jar file is null", error);
-
-        if (target.getClasses() == null)
-            throw new PhaseExecutionException(true, "target classes collection is null", error);
 
         StringBuilder errMsgBuilder = new StringBuilder(DEFAULT_ERR_MSG_HEADER);
         boolean anySuccess = walkClasses(target, errMsgBuilder);
