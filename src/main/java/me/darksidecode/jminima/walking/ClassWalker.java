@@ -17,10 +17,11 @@
 package me.darksidecode.jminima.walking;
 
 import lombok.NonNull;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public interface ClassWalker {
+public interface ClassWalker extends Opcodes {
 
     boolean hasModifiedAnything();
 
