@@ -16,7 +16,22 @@
 
 package me.darksidecode.jminima.phase;
 
+import lombok.Getter;
+
 public abstract class Phase<TargetType, EmitType> {
+
+    @Getter
+    private PhaseExecutionWatcher<EmitType> beforeExecutionWatcher, afterExecutionWatcher;
+
+    public final Phase<TargetType, EmitType> beforeExecution(PhaseExecutionWatcher<EmitType> watcher) {
+        this.beforeExecutionWatcher = watcher;
+        return this;
+    }
+
+    public final Phase<TargetType, EmitType> afterExecution(PhaseExecutionWatcher<EmitType> watcher) {
+        this.afterExecutionWatcher = watcher;
+        return this;
+    }
 
     public final EmittedValue<? extends EmitType> executeNoExcept(Object target, PhaseExecutionException error) {
         try {
@@ -27,7 +42,7 @@ public abstract class Phase<TargetType, EmitType> {
                 throw new IllegalArgumentException("invalid target type " + target.getClass().getName()
                         + " (expected " + getTargetTypeClass().getName() + " or its inheritors)");
 
-            return execute((TargetType) target, error);
+            return target != null ? execute((TargetType) target, error) : execute(null, error);
         } catch (Exception ex) {
             return new EmittedValue<>(new PhaseExecutionException(
                     true, "unhandled exception during phase execution", ex));

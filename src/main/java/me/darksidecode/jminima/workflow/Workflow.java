@@ -17,10 +17,7 @@
 package me.darksidecode.jminima.workflow;
 
 import lombok.NonNull;
-import me.darksidecode.jminima.phase.EmittedValue;
-import me.darksidecode.jminima.phase.Phase;
-import me.darksidecode.jminima.phase.PhaseExecutionException;
-import me.darksidecode.jminima.phase.TargetNotEmittedException;
+import me.darksidecode.jminima.phase.*;
 
 import java.util.*;
 
@@ -70,7 +67,21 @@ public class Workflow {
                     "target type class cannot be null (did you mean Void.class?)");
 
         EmittedValue<?> target = getLastEmittedValueOfType(targetTypeClass);
+
+        if (nextPhase.getBeforeExecutionWatcher() != null)
+            nextPhase.getBeforeExecutionWatcher()
+                    .handleNoExcept(target.getValue(), target.getError());
+
         EmittedValue<?> result = nextPhase.executeNoExcept(target.getValue(), target.getError());
+
+        if (nextPhase.getAfterExecutionWatcher() != null) {
+            if (result != null)
+                nextPhase.getAfterExecutionWatcher()
+                        .handleNoExcept(result.getValue(), result.getError());
+            else
+                nextPhase.getAfterExecutionWatcher()
+                        .handleNoExcept(null, null);
+        }
 
         if (result != null) {
             if (result.getValue() != null)
