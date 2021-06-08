@@ -24,6 +24,8 @@ import me.darksidecode.jminima.phase.PhaseExecutionException;
 import me.darksidecode.jminima.util.JarFileData;
 import me.darksidecode.jminima.walking.ClassWalker;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.lang.reflect.Constructor;
 
@@ -69,27 +71,50 @@ public class WalkClassesPhase extends Phase<JarFileData, Void> {
 
     private boolean walkClasses(JarFileData jarFileData, StringBuilder errMsgBuilder) {
         for (ClassNode cls : jarFileData.getClasses().keySet()) {
+            ClassWalker walker;
+
             try {
-                ClassWalker walker = walkerConstructor.newInstance(cls);
-
-                walker.visitClass();
-
-                if (cls.fields != null)
-                    cls.fields.forEach(walker::visitField);
-
-                if (cls.methods != null)
-                    cls.methods.forEach(walker::visitMethod);
-
-                if (walker.hasModifiedAnything())
-                    jarFileData.getClasses().put(cls, true);
+                walker = walkerConstructor.newInstance(cls);
             } catch (ReflectiveOperationException ex) {
                 if (JMinima.debug) ex.printStackTrace();
                 errMsgBuilder.append("\n    - ").append(ex);
                 return false; // fatal error
+            }
+
+            try {
+                walker.visitClass();
             } catch (Exception ex) {
                 if (JMinima.debug) ex.printStackTrace();
-                errMsgBuilder.append("\n    - ").append(ex);
+                errMsgBuilder.append("\n    - [visitClass: ")
+                        .append(cls.name).append("] ").append(ex);
             }
+
+            if (cls.fields != null) {
+                for (FieldNode fld : cls.fields) {
+                    try {
+                        walker.visitField(fld);
+                    } catch (Exception ex) {
+                        if (JMinima.debug) ex.printStackTrace();
+                        errMsgBuilder.append("\n    - [visitField: ")
+                                .append(cls.name).append('#').append(fld.name).append("] ").append(ex);
+                    }
+                }
+            }
+
+            if (cls.methods != null) {
+                for (MethodNode mtd : cls.methods) {
+                    try {
+                        walker.visitMethod(mtd);
+                    } catch (Exception ex) {
+                        if (JMinima.debug) ex.printStackTrace();
+                        errMsgBuilder.append("\n    - [visitMethod: ")
+                                .append(cls.name).append('#').append(mtd.name).append("] ").append(ex);
+                    }
+                }
+            }
+
+            if (walker.hasModifiedAnything())
+                jarFileData.getClasses().put(cls, true); // mark the walked class as modified (could be used later)
         }
 
         return true; // full or partial success
