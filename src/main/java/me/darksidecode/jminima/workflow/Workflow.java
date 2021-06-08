@@ -17,11 +17,28 @@
 package me.darksidecode.jminima.workflow;
 
 import lombok.NonNull;
-import me.darksidecode.jminima.phase.*;
+import lombok.RequiredArgsConstructor;
+import me.darksidecode.jminima.phase.EmittedValue;
+import me.darksidecode.jminima.phase.Phase;
+import me.darksidecode.jminima.phase.PhaseExecutionException;
+import me.darksidecode.jminima.phase.TargetNotEmittedException;
 
+import java.io.Closeable;
 import java.util.*;
 
-public class Workflow {
+@RequiredArgsConstructor
+public class Workflow implements Closeable {
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static final int CLEAR_PHASE_ERRORS        = 0b1                                              ;
+    public static final int CLEAR_EMITTED_VALUES      = 0b10                                             ;
+    public static final int CLEAR_STATE               = 0b100                                            ;
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static final int CLEAR_EXECUTION_ARTIFACTS = CLEAR_PHASE_ERRORS        | CLEAR_EMITTED_VALUES ;
+    public static final int CLEAR_ALL                 = CLEAR_EXECUTION_ARTIFACTS | CLEAR_STATE          ;
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final int clearOnCloseFlags;
 
     private final List<Phase<?, ?>> phases = new ArrayList<>();
 
@@ -31,6 +48,60 @@ public class Workflow {
     private final Map<Class<? extends Phase>, PhaseExecutionException> phaseErrors = new LinkedHashMap<>();
 
     private int currentPhase;
+
+    @Override
+    public void close() {
+        emittedValues.values().forEach(this::close);
+
+        if ((clearOnCloseFlags & CLEAR_PHASE_ERRORS) != 0)
+            clearPhaseErrors();
+
+        if ((clearOnCloseFlags & CLEAR_EMITTED_VALUES) != 0)
+            clearEmittedValues();
+
+        if ((clearOnCloseFlags & CLEAR_STATE) != 0)
+            clearState();
+    }
+    
+    public void close(@NonNull EmittedValue<?> val) {
+        Object value = val.getValue();
+        
+        if (value instanceof EmittedValue<?>)
+            close((EmittedValue<?>) value); // EmittedValue objects can be nested
+        else if (value instanceof Closeable) {
+            try {
+                ((Closeable) value).close();
+            } catch (Exception ignored) {}
+        } else if (value instanceof AutoCloseable) { // AutoCloseable is a superclass of Closeable
+            try {
+                ((AutoCloseable) value).close();
+            } catch (Exception ignored) {}
+        }
+    }
+
+    public Workflow clearAll() {
+        return clearExecutionArtifacts().clearState();
+    }
+
+    public Workflow clearExecutionArtifacts() {
+        return clearEmittedValues().clearPhaseErrors();
+    }
+
+    public Workflow clearState() {
+        currentPhase = 0;
+        phases.clear();
+        return this;
+    }
+
+    public Workflow clearEmittedValues() {
+        emittedValues.clear();
+        return this;
+    }
+
+    public Workflow clearPhaseErrors() {
+        phaseErrors.clear();
+        return this;
+    }
 
     public Workflow phase(@NonNull Phase<?, ?> phase) {
         if (phases.contains(phase))
