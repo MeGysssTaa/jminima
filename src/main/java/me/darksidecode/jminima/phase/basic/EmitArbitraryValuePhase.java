@@ -17,18 +17,27 @@
 package me.darksidecode.jminima.phase.basic;
 
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import me.darksidecode.jminima.phase.EmittedValue;
 import me.darksidecode.jminima.phase.Phase;
 import me.darksidecode.jminima.phase.PhaseExecutionException;
 
 import java.util.function.Supplier;
 
-@RequiredArgsConstructor
 public class EmitArbitraryValuePhase<EmitType> extends Phase<Void, EmitType> {
 
-    @NonNull
+    private final EmittedValue<? extends EmitType> emitConstant;
+
     private final Supplier<? extends EmitType> emitter;
+
+    public EmitArbitraryValuePhase(@NonNull EmitType emitConstant) {
+        this.emitConstant = new EmittedValue<>(emitConstant);
+        this.emitter = null;
+    }
+
+    public EmitArbitraryValuePhase(@NonNull Supplier<? extends EmitType> emitter) {
+        this.emitConstant = null;
+        this.emitter = emitter;
+    }
 
     @Override
     public Class<? super Void> getTargetTypeClass() {
@@ -38,7 +47,7 @@ public class EmitArbitraryValuePhase<EmitType> extends Phase<Void, EmitType> {
     @Override
     protected EmittedValue<? extends EmitType> execute(Void target,
                                                        PhaseExecutionException error) throws Exception {
-        return new EmittedValue<>(emitter.get());
+        return emitter != null ? new EmittedValue<>(emitter.get()) : emitConstant;
     }
 
 }
