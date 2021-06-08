@@ -17,7 +17,6 @@
 package me.darksidecode.jminima.workflow;
 
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import me.darksidecode.jminima.phase.EmittedValue;
 import me.darksidecode.jminima.phase.Phase;
 import me.darksidecode.jminima.phase.PhaseExecutionException;
@@ -26,7 +25,6 @@ import me.darksidecode.jminima.phase.TargetNotEmittedException;
 import java.io.Closeable;
 import java.util.*;
 
-@RequiredArgsConstructor
 public class Workflow implements Closeable {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +37,14 @@ public class Workflow implements Closeable {
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private final int clearOnCloseFlags;
+
+    public Workflow() {
+        this(0);
+    }
+
+    public Workflow(int clearOnCloseFlags) {
+        this.clearOnCloseFlags = clearOnCloseFlags;
+    }
 
     private final List<Phase<?, ?>> phases = new ArrayList<>();
 
