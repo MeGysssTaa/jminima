@@ -49,9 +49,9 @@ public class SimpleJavaDisassembler implements JavaDisassembler {
                         return disassembleJavaClass(entry.getName(), bytes);
                 }
             }
-        } catch (Exception ex) {
+        } catch (Throwable t) {
             return new EmittedValue<>(new PhaseExecutionException(
-                    false, "failed to read a jar entry: " + entry.getName(), ex));
+                    false, "failed to read a jar entry: " + entry.getName(), t));
         }
 
         return null; // not a class entry
@@ -63,13 +63,13 @@ public class SimpleJavaDisassembler implements JavaDisassembler {
 
         try {
             reader.accept(cls, ClassReader.EXPAND_FRAMES);
-        } catch (Exception ex1) {
+        } catch (Throwable t1) {
             try {
                 reader.accept(cls, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
-            } catch (Exception ex2) {
+            } catch (Throwable t2) {
                 return new EmittedValue<>(new PhaseExecutionException(
                         false, "failed to disassemble a " + classBytes.length
-                        + " bytes Java class: " + name, ex2));
+                        + " bytes Java class: " + name, t2));
             }
         }
 

@@ -54,7 +54,7 @@ public class DisassemblePhase extends Phase<JarFile, JarFileData> {
 
     @Override
     protected EmittedValue<? extends JarFileData> execute(JarFile target,
-                                                          PhaseExecutionException error) throws Exception {
+                                                          PhaseExecutionException error) throws Throwable {
         if (target == null)
             return new EmittedValue<>(new PhaseExecutionException(
                     true, "failed to disassemble the target jar file", error));

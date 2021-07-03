@@ -78,11 +78,11 @@ public class Workflow implements Closeable {
         else if (value instanceof Closeable) {
             try {
                 ((Closeable) value).close();
-            } catch (Exception ignored) {}
+            } catch (Throwable ignored) {}
         } else if (value instanceof AutoCloseable) { // AutoCloseable is a superclass of Closeable
             try {
                 ((AutoCloseable) value).close();
-            } catch (Exception ignored) {}
+            } catch (Throwable ignored) {}
         }
     }
 

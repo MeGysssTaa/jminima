@@ -31,7 +31,7 @@ public class CloseJarFilePhase extends Phase<JarFile, Void> {
 
     @Override
     protected EmittedValue<? extends Void> execute(JarFile target,
-                                                   PhaseExecutionException error) throws Exception {
+                                                   PhaseExecutionException error) throws Throwable {
         if (target == null)
             return new EmittedValue<>(new PhaseExecutionException(
                     true, "failed to close the target jar file", error));

@@ -46,7 +46,7 @@ public class EmitArbitraryValuePhase<EmitType> extends Phase<Void, EmitType> {
 
     @Override
     protected EmittedValue<? extends EmitType> execute(Void target,
-                                                       PhaseExecutionException error) throws Exception {
+                                                       PhaseExecutionException error) throws Throwable {
         return emitter != null ? new EmittedValue<>(emitter.get()) : emitConstant;
     }
 

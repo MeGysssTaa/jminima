@@ -48,7 +48,7 @@ public class SaveJarPhase extends Phase<JarFileData, Void> {
 
     @Override
     protected EmittedValue<? extends Void> execute(JarFileData target,
-                                                   PhaseExecutionException error) throws Exception {
+                                                   PhaseExecutionException error) throws Throwable {
         if (target == null)
             return new EmittedValue<>(new PhaseExecutionException(true, "failed to save jar", error));
 

@@ -38,7 +38,7 @@ public class OpenJarFilePhase extends Phase<Void, JarFile> {
 
     @Override
     protected EmittedValue<? extends JarFile> execute(Void target,
-                                                      PhaseExecutionException error) throws Exception {
+                                                      PhaseExecutionException error) throws Throwable {
         if (!file.isFile())
             return new EmittedValue<>(new PhaseExecutionException(
                     true, "target file does not exist or is a directory"));

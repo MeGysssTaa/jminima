@@ -39,15 +39,15 @@ public abstract class Phase<TargetType, EmitType> {
                         + " (expected " + getTargetTypeClass().getName() + " or its inheritors)");
 
             return target != null ? execute((TargetType) target, error) : execute(null, error);
-        } catch (Exception ex) {
+        } catch (Throwable t) {
             return new EmittedValue<>(new PhaseExecutionException(
-                    true, "unhandled exception during phase execution", ex));
+                    true, "unhandled exception during phase execution", t));
         }
     }
 
     public abstract Class<? super TargetType> getTargetTypeClass();
 
     protected abstract EmittedValue<? extends EmitType> execute(
-            TargetType target, PhaseExecutionException error) throws Exception;
+            TargetType target, PhaseExecutionException error) throws Throwable;
 
 }

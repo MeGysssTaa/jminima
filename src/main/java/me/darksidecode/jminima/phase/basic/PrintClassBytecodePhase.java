@@ -54,7 +54,7 @@ public class PrintClassBytecodePhase extends Phase<JarFileData, Map<? extends Cl
 
     @Override
     protected EmittedValue<? extends Map<ClassNode, String>> execute(JarFileData target,
-                                                                     PhaseExecutionException error) throws Exception {
+                                                                     PhaseExecutionException error) throws Throwable {
         if (target == null)
             return new EmittedValue<>(new PhaseExecutionException(
                     true, "failed to print bytecode of the target disassembled data", error));
@@ -81,9 +81,9 @@ public class PrintClassBytecodePhase extends Phase<JarFileData, Map<? extends Cl
                 if (JMinima.debug) ex.printStackTrace();
                 errMsgBuilder.append("\n    - ").append(ex);
                 return false; // fatal error
-            } catch (Exception ex) {
-                if (JMinima.debug) ex.printStackTrace();
-                errMsgBuilder.append("\n    - ").append(ex);
+            } catch (Throwable t) {
+                if (JMinima.debug) t.printStackTrace();
+                errMsgBuilder.append("\n    - ").append(t);
             }
         }
 

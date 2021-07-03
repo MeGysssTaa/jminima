@@ -53,7 +53,7 @@ public class WalkClassesPhase extends Phase<JarFileData, Void> {
 
     @Override
     protected EmittedValue<? extends Void> execute(JarFileData target,
-                                                   PhaseExecutionException error) throws Exception {
+                                                   PhaseExecutionException error) throws Throwable {
         if (target == null || target.getJarFile() == null || target.getClasses() == null)
             return new EmittedValue<>(new PhaseExecutionException(
                     true, "failed to walk classes of the target disassembled data", error));
@@ -83,20 +83,20 @@ public class WalkClassesPhase extends Phase<JarFileData, Void> {
 
             try {
                 walker.visitClass();
-            } catch (Exception ex) {
-                if (JMinima.debug) ex.printStackTrace();
+            } catch (Throwable t) {
+                if (JMinima.debug) t.printStackTrace();
                 errMsgBuilder.append("\n    - [visitClass: ")
-                        .append(cls.name).append("] ").append(ex);
+                        .append(cls.name).append("] ").append(t);
             }
 
             if (cls.fields != null) {
                 for (FieldNode fld : cls.fields) {
                     try {
                         walker.visitField(fld);
-                    } catch (Exception ex) {
-                        if (JMinima.debug) ex.printStackTrace();
+                    } catch (Throwable t) {
+                        if (JMinima.debug) t.printStackTrace();
                         errMsgBuilder.append("\n    - [visitField: ")
-                                .append(cls.name).append('#').append(fld.name).append("] ").append(ex);
+                                .append(cls.name).append('#').append(fld.name).append("] ").append(t);
                     }
                 }
             }
@@ -105,10 +105,10 @@ public class WalkClassesPhase extends Phase<JarFileData, Void> {
                 for (MethodNode mtd : cls.methods) {
                     try {
                         walker.visitMethod(mtd);
-                    } catch (Exception ex) {
-                        if (JMinima.debug) ex.printStackTrace();
+                    } catch (Throwable t) {
+                        if (JMinima.debug) t.printStackTrace();
                         errMsgBuilder.append("\n    - [visitMethod: ")
-                                .append(cls.name).append('#').append(mtd.name).append("] ").append(ex);
+                                .append(cls.name).append('#').append(mtd.name).append("] ").append(t);
                     }
                 }
             }
