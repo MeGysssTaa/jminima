@@ -17,6 +17,7 @@
 package me.darksidecode.jminima.workflow;
 
 import lombok.NonNull;
+import me.darksidecode.jminima.JMinima;
 import me.darksidecode.jminima.phase.EmittedValue;
 import me.darksidecode.jminima.phase.Phase;
 import me.darksidecode.jminima.phase.PhaseExecutionException;
@@ -144,20 +145,26 @@ public class Workflow implements Closeable {
                     "target type class cannot be null (did you mean Void.class?)");
 
         EmittedValue<?> target = getLastEmittedValueOfType(targetTypeClass);
+        EmittedValue<?> result;
 
-        if (nextPhase.getBeforeExecutionWatcher() != null)
-            nextPhase.getBeforeExecutionWatcher()
-                    .handleNoExcept(target.getValue(), target.getError());
+        try {
+            nextPhase.getWatcher().beforeExecution(target.getValue(), target.getError());
+            result = nextPhase.executeNoExcept(target.getValue(), target.getError());
 
-        EmittedValue<?> result = nextPhase.executeNoExcept(target.getValue(), target.getError());
-
-        if (nextPhase.getAfterExecutionWatcher() != null) {
-            if (result != null)
-                nextPhase.getAfterExecutionWatcher()
-                        .handleNoExcept(result.getValue(), result.getError());
-            else
-                nextPhase.getAfterExecutionWatcher()
-                        .handleNoExcept(null, null);
+            try {
+                if (result != null)
+                    nextPhase.getWatcher().afterExecution(result.getValue(), result.getError());
+                else
+                    nextPhase.getWatcher().afterExecution(null, null);
+            } catch (Throwable t) {
+                if (JMinima.debug) t.printStackTrace();
+                result = new EmittedValue<>(new PhaseExecutionException(
+                        true, "fatal unhandled exception in phase execution watcher (afterExecution)", t));
+            }
+        } catch (Throwable t) {
+            if (JMinima.debug) t.printStackTrace();
+            result = new EmittedValue<>(new PhaseExecutionException(
+                    true, "fatal unhandled exception in phase execution watcher (beforeExecution)", t));
         }
 
         if (result != null) {

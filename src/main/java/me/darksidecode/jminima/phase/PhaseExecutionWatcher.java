@@ -16,19 +16,63 @@
 
 package me.darksidecode.jminima.phase;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import me.darksidecode.jminima.JMinima;
 
-public interface PhaseExecutionWatcher<T> {
+import java.util.function.Consumer;
 
-    default void handleNoExcept(Object object, PhaseExecutionException error) {
-        try {
-            if (object != null) handle((T) object, error);
-            else                handle(null, error);
-        } catch (Exception ex) {
-            if (JMinima.debug) ex.printStackTrace();
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public final class PhaseExecutionWatcher<T> {
+
+    private Watcher<T> beforeExecutionWatcher, afterExecutionWatcher;
+
+    private Consumer<Throwable> errorHandler;
+
+    public PhaseExecutionWatcher<T> beforeExecutionWatcher(Watcher<T> watcher) {
+        beforeExecutionWatcher = watcher;
+        return this;
+    }
+
+    public PhaseExecutionWatcher<T> afterExecutionWatcher(Watcher<T> watcher) {
+        afterExecutionWatcher = watcher;
+        return this;
+    }
+
+    public PhaseExecutionWatcher<T> errorHandler(Consumer<Throwable> handler) {
+        errorHandler = handler;
+        return this;
+    }
+
+    public void beforeExecution(Object object, PhaseExecutionException error) throws Throwable {
+        accept(beforeExecutionWatcher, object, error);
+    }
+
+    public void afterExecution(Object object, PhaseExecutionException error) throws Throwable {
+        accept(afterExecutionWatcher, object, error);
+    }
+
+    private void accept(Watcher<T> watcher, Object object, PhaseExecutionException error) throws Throwable {
+        if (watcher != null) {
+            try {
+                watcher.handleBridge(object, error);
+            } catch (Throwable t) {
+                if (JMinima.debug) t.printStackTrace();
+                if (errorHandler != null) errorHandler.accept(t);
+            }
         }
     }
 
-    void handle(T object, PhaseExecutionException error) throws Exception;
+    public interface Watcher<T> {
+        default void handleBridge(Object object, PhaseExecutionException error) throws Throwable {
+            if (object != null) handle((T) object, error);
+            else                handle(null, error);
+        }
+
+        void handle(T object, PhaseExecutionException error) throws Throwable;
+    }
 
 }

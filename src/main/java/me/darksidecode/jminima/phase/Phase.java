@@ -17,19 +17,15 @@
 package me.darksidecode.jminima.phase;
 
 import lombok.Getter;
+import lombok.NonNull;
 
 public abstract class Phase<TargetType, EmitType> {
 
     @Getter
-    private PhaseExecutionWatcher<EmitType> beforeExecutionWatcher, afterExecutionWatcher;
+    private PhaseExecutionWatcher<EmitType> watcher = new PhaseExecutionWatcher<>(); // default to NOP-watcher
 
-    public final Phase<TargetType, EmitType> beforeExecution(PhaseExecutionWatcher<EmitType> watcher) {
-        this.beforeExecutionWatcher = watcher;
-        return this;
-    }
-
-    public final Phase<TargetType, EmitType> afterExecution(PhaseExecutionWatcher<EmitType> watcher) {
-        this.afterExecutionWatcher = watcher;
+    public final Phase<TargetType, EmitType> watcher(@NonNull PhaseExecutionWatcher<EmitType> watcher) {
+        this.watcher = watcher;
         return this;
     }
 
