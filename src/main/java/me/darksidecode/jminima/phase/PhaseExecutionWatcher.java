@@ -32,17 +32,17 @@ public final class PhaseExecutionWatcher<T> {
 
     private Consumer<Throwable> errorHandler;
 
-    public PhaseExecutionWatcher<T> beforeExecutionWatcher(Watcher<T> watcher) {
+    public PhaseExecutionWatcher<T> doBeforeExecution(Watcher<T> watcher) {
         beforeExecutionWatcher = watcher;
         return this;
     }
 
-    public PhaseExecutionWatcher<T> afterExecutionWatcher(Watcher<T> watcher) {
+    public PhaseExecutionWatcher<T> doAfterExecution(Watcher<T> watcher) {
         afterExecutionWatcher = watcher;
         return this;
     }
 
-    public PhaseExecutionWatcher<T> errorHandler(Consumer<Throwable> handler) {
+    public PhaseExecutionWatcher<T> doOnWatcherError(Consumer<Throwable> handler) {
         errorHandler = handler;
         return this;
     }

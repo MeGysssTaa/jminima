@@ -39,7 +39,7 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
     implementation group: 'org.ow2.asm', name: 'asm', version: "${asmVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-util', version: "${asmVersion}"
-    implementation group: 'me.darksidecode.jminima', name: 'jminima', version: '1.3.0'
+    implementation group: 'me.darksidecode.jminima', name: 'jminima', version: '1.4.0'
 }
 ```
 
@@ -76,7 +76,7 @@ dependencies {
     <dependency>
         <groupId>me.darksidecode.jminima</groupId>
         <artifactId>jminima</artifactId>
-        <version>1.3.0</version>
+        <version>1.4.0</version>
     </dependency>
 </dependencies>
 ```
