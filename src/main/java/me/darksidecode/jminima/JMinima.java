@@ -21,7 +21,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class JMinima {
 
-    public static final boolean debug = Boolean.parseBoolean(
+    public static boolean debug = Boolean.parseBoolean(
             System.getProperty("jminima.debug", "false"));
 
 }
